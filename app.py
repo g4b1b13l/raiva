@@ -8,9 +8,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 app.layout = html.Div(children=[
-    html.H1(children='Parabéns Leidson!'),
-    html.H1(children='Para: Leidson'),
-    html.H1(children='De: Estagiária de mixagem')
+    html.H1(children='Que horas hoje?')
 	])
 
 
