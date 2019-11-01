@@ -206,6 +206,7 @@ formato=['Pizza', 'Barra', 'Barra - Stacked']
 #Comeca entao o codigo 
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 app.title = 'Plataforma_ODG'
 
