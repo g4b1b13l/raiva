@@ -7,9 +7,7 @@ external_stylesheets = ['https://codepen.io/g4b1b13l/pen/VwwrYdL.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
-app.layout = 
-
-        html.H1(children= '''Parabéns Leidson!
+app.layout = html.H1(children= '''Parabéns Leidson!
 
                              Para: Leidson
                              De: Estagiária de mixagem''')
