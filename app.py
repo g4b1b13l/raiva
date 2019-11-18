@@ -67,14 +67,17 @@ dict_order_axis_x= { 'Quantidade integralizada':['(0 - 500)','(500 - 1000)', '(1
                     'Por raca' : [''],
                     'Por sexo': [''],
                     'Por deficiencia': [''],
-                    'Por quantidade': [2013,2014,2015,2016,2017]
+                    'Por quantidade': [2013,2014,2015,2016,2017],
+                    'Atividade Extracurricular': [''],
+                    'Vagas Reservadas' : [''],
+                    'Para outra Ies': ['']
     
 }
 
 
 
 dict_radio = { 'evd' : 'fato_evasao',
-                'ing' : 'teste_ingresso'
+                'ing' : 'fato_ingresso'
     
 }
 
@@ -122,41 +125,65 @@ dict_idade= {
             
 }
  
+dict_atividade= { 0: 'Não Possui',
+                    1: 'Possui'
+    
+
+}
+
+dict_reserva = {0:'Não reversado',
+                1: 'Reservado'
+    
+
+}
 
 
-dict_dicionario={ 'Quantidade integralizada' : dict_qt_integ,
+dict_dicionario={ 'Quantidade integralizada' : dict_qt_integ,  #Qual dicionario vai ser usado para decodificar os valores
                     'Por raca' : dict_raca,
                     'Por sexo': dict_sexo,
                     'Por deficiencia': dict_deficiencia,
                     'Por idade' : dict_idade,
-                    'Por quantidade': dict_gamb
+                    'Por quantidade': dict_gamb,
+                    'Atividade Extracurricular' : dict_atividade,
+                    'Vagas Reservadas': dict_reserva,
+                    'Para outra Ies': dict_ies
     
 }
 
-dict_coluna= {'Quantidade integralizada' : 'qt_carga_horaria_integ',
+dict_coluna= {'Quantidade integralizada' : 'qt_carga_horaria_integ', # Diz qual eh a coluna no banco de dados que vai corresponder a pergunta
                   'Por raca' : 'tp_cor_raca',
                     'Por sexo': 'tp_sexo',
                     'Por deficiencia': 'tp_deficiencia',
                     'Por idade' : 'idade',
-                    'Por quantidade': 'censo'
+                    'Por quantidade': 'censo',
+                    'Atividade Extracurricular': 'in_atividade_extracurricular',
+                    'Vagas Reservadas': 'in_reserva_vagas',
+                    'Para outra Ies': 'sk_ies'
+
     
 }
 
-dict_eixo_x= {'Quantidade integralizada' : 'Quantidade integralizada',
+dict_eixo_x= {'Quantidade integralizada' : 'Quantidade integralizada', # Diz o que vai aparecer no eixo X de barra
                   'Por raca' : 'Raça',
                     'Por sexo': 'Sexo',
                     'Por deficiencia': 'Deficiencia',
                     'Por idade' : 'Idade',
-                    'Por quantidade': 'Anos'
+                    'Por quantidade': 'Anos',
+                    'Atividade Extracurricular' : 'Atividade Extracurricular',
+                    'Vagas Reservadas': 'Vagas Reservadas',
+                    'Para outra Ies': 'IES - Elétrica'
     
 }
 
-dict_eixo_y= {'Quantidade integralizada' : 'Quantidade de alunos ',
+dict_eixo_y= {'Quantidade integralizada' : 'Quantidade de alunos ', # Diz o que vai aparecer no eixo Y de barra
                   'Por raca' : 'Quantidade de alunos ',
                     'Por sexo': 'Quantidade de alunos ',
                     'Por deficiencia': 'Quantidade de alunos ',
                     'Por idade' : 'Quantidade de alunos ',
-                    'Por quantidade': 'Quantidade de alunos '
+                    'Por quantidade': 'Quantidade de alunos ',
+                    'Atividade Extracurricular' : 'Quantidade de alunos',
+                    'Vagas Reservadas': 'Quantidade de alunos',
+                    'Para outra Ies': 'Quantidade de alunos'
     
 }
 
@@ -182,6 +209,8 @@ mycursor=mydb.cursor()
 
 Ies=['FPB','NASSAU JP', 'NASSAU CG', 'IFPB', 'UFCG', 'UFPB']
 
+alo=dbc.themes.BOOTSTRAP
+
 anos = [2013,2014,2015,2016,2017]
 external_stylesheets = ['https://codepen.io/g4b1b13l/pen/VwwrYdL.css']
 
@@ -190,14 +219,18 @@ evadidos=['Quantidade integralizada',
 'Por sexo',
 'Por deficiencia',
 'Por idade',
-'Por quantidade']
+'Por quantidade',
+'Atividade Extracurricular',
+'Para outra Ies'
+]
 
 ingressante=[
 'Por raca',
 'Por sexo',
 'Por deficiencia',
 'Por idade',
-'Por quantidade']
+'Por quantidade',
+'Vagas Reservadas']
 
 formato=['Pizza', 'Barra', 'Barra - Stacked']
 
@@ -207,6 +240,7 @@ formato=['Pizza', 'Barra', 'Barra - Stacked']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
+
 
 app.title = 'Plataforma_ODG'
 
@@ -234,9 +268,9 @@ app.layout = html.Div([
         } 
         ),
 
+
     
-
-
+    dbc.Button('Menu', outline=True, id='menu_lateral'),
 
     dcc.Checklist(
     id='check',
@@ -246,7 +280,7 @@ app.layout = html.Div([
 
     ],
     value=['d'],
-    labelStyle={'display': 'inline-block'}
+    labelStyle={'display': 'none'}
     ),
 
 
@@ -259,7 +293,7 @@ app.layout = html.Div([
 
         html.Div([
         html.Label('Comparar com dois graficos?',style={'padding-top': '30px'}),
-        dcc.RadioItems(
+        dcc.RadioItems(  
             options=[
                 {'label': 'Sim', 'value': 'sim'},
                 {'label': 'Não', 'value': 'nao'},
@@ -891,6 +925,28 @@ def cria_sql(pergunta,variavel,mycursor,mudar):
             FROM  ''' + dict_radio[mudar] + '''
              WHERE CENSO in %s''' 
 
+    if pergunta == 'Atividade Extracurricular':  
+        return  '''SELECT sk_ies,in_atividade_extracurricular
+            FROM  ''' + dict_radio[mudar] + '''
+             WHERE CENSO in %s''' 
+    if pergunta == 'Vagas Reservadas':  
+        return  '''SELECT sk_ies,in_reserva_vagas
+            FROM  ''' + dict_radio[mudar] + '''
+             WHERE CENSO in %s'''          
+
+    if pergunta == 'Para outra Ies':  
+        return  '''SELECT sk_ies,censo,sk_aluno,dt_ingresso_curso
+            FROM  ''' + dict_radio[mudar] + '''
+             WHERE CENSO in %s''' 
+
+
+def cria_sql_para_ingressantes(pergunta,variavel,mycursor,mudar):
+    return  '''SELECT sk_ies,censo,sk_aluno,dt_ingresso_curso
+             FROM  fato_ingresso
+             WHERE sk_aluno in %s'''  
+
+    
+
 def tipo_graph(variavel,pergunta,no_ies,tipo,buttons,mudar):  
 
 
@@ -923,6 +979,14 @@ def tipo_graph(variavel,pergunta,no_ies,tipo,buttons,mudar):
     colnames = [desc[0] for desc in mycursor.description]
         
     df = pd.DataFrame(data=myresult, columns=colnames )
+
+
+
+
+
+
+        
+
     #print(df["qt_carga_horaria_integ"],flush=True)
     if(pergunta=='Quantidade integralizada'):
        df['qt_carga_horaria_integ']=df["qt_carga_horaria_integ"].apply(lambda x: forma_classes_qt_integ(x))
@@ -937,7 +1001,7 @@ def tipo_graph(variavel,pergunta,no_ies,tipo,buttons,mudar):
 
 
     if(tipo=='Pizza'):
-        xa =[dict_no[ies] for ies in no_ies] 
+        xa =[dict_no[ies] for ies in no_ies]
         #if(no_ies == 'Todos'):
         #    x=[dict_no[x] for x in ['FPB','NASSAU JP', 'NASSAU CG', 'IFPB', 'UFCG', 'UFPB']]
         #    flag=df.isin({'sk_ies' : x})
@@ -946,11 +1010,40 @@ def tipo_graph(variavel,pergunta,no_ies,tipo,buttons,mudar):
             #x = dict_no[no_ies]
             #a=df['sk_ies']==x
             #b=df[a]
-
         flag=df.isin({'sk_ies' : xa})
         b=df[(flag.sk_ies)]
-        #xa =[dict_no[ies] for ies in no_ies] 
+        if(pergunta == 'Para outra Ies'):
+            dict_aluno = {sk_aluno:data_ingresso for sk_aluno, data_ingresso in zip(list(b['sk_aluno']),list(b['dt_ingresso_curso']))}  
+            dict_ies_flag = {sk_aluno:no_ies for sk_aluno, no_ies in zip(list(b['sk_aluno']),list(b['sk_ies']))}
+            alunos=tuple(b.sk_aluno)
+            dt_ingresso=tuple(b.dt_ingresso_curso)
+            sql=cria_sql_para_ingressantes(pergunta, variavel,mycursor,mudar) 
+            mycursor.execute(sql,(alunos,))
+            myresult= mycursor.fetchall()
+            colnames = [desc[0] for desc in mycursor.description]
+            df = pd.DataFrame(data=myresult, columns=colnames )
 
+
+
+            for index, row in df.iterrows():
+                flag=row['sk_aluno']
+                data_aluno = row['dt_ingresso_curso']
+                data_aluno_2 = dict_aluno[flag]
+                if row['sk_ies'] == dict_ies_flag[flag]:
+                    if data_aluno.year <= data_aluno_2.year:
+                        df.drop(index,inplace=True)
+                else:
+                    if data_aluno <= data_aluno_2: 
+                        df.drop(index,inplace=True)
+
+
+            #for index, row in df.iterrows():
+            #    a=row['sk_aluno']
+            #    if row['dt_ingresso_curso'] <= dict_aluno[a] :
+            #        df.drop(index,inplace=True)
+
+            b=df           
+        #xa =[dict_no[ies] for ies in no_ies] 
         #flag=temp.isin({'CO_UF_CURSO' : CO_UF, 'NO_CURSO' : NO_CURSO })
         #temp=temp[(flag.CO_UF_CURSO) & (flag.NO_CURSO)]
 
@@ -989,6 +1082,35 @@ def tipo_graph(variavel,pergunta,no_ies,tipo,buttons,mudar):
         for x in xa:
             a=df['sk_ies']==x
             b=df[a]
+            if(pergunta == 'Para outra Ies'):
+                dict_aluno = {sk_aluno:data_ingresso for sk_aluno, data_ingresso in zip(list(b['sk_aluno']),list(b['dt_ingresso_curso']))}
+                dict_ies_flag = {sk_aluno:no_ies for sk_aluno, no_ies in zip(list(b['sk_aluno']),list(b['sk_ies']))}
+                alunos=tuple(b.sk_aluno)
+                dt_ingresso=tuple(b.dt_ingresso_curso)  
+                sql=cria_sql_para_ingressantes(pergunta, variavel,mycursor,mudar) 
+                mycursor.execute(sql,(alunos,))
+                myresult= mycursor.fetchall()
+                colnames = [desc[0] for desc in mycursor.description]
+                df = pd.DataFrame(data=myresult, columns=colnames )
+
+                for index, row in df.iterrows():
+                    flag=row['sk_aluno']
+                    data_aluno = row['dt_ingresso_curso']
+                    data_aluno_2 = dict_aluno[flag]
+                    if row['sk_ies'] == dict_ies_flag[flag]:
+                        if data_aluno.year <= data_aluno_2.year:
+                            df.drop(index,inplace=True)  
+                    else:   
+                        if data_aluno <= data_aluno_2: 
+                            df.drop(index,inplace=True)
+                
+
+                #for index, row in df.iterrows():
+                #    a=row['sk_aluno']  
+                #    if row['dt_ingresso_curso'] <= dict_aluno[a] :
+                #        df.drop(index,inplace=True)
+                b=df 
+            #xa =[dict_no[ies] for ies in no_ies] 
             flagzao=b[dict_coluna[pergunta]]
             #print([dicionario[x] for x in flagzao],flush=True)
             fig.add_trace((go.Histogram(
@@ -1150,7 +1272,24 @@ def Muda_os_parametros_da_caixinha_da_pergunta(check):
         return {'left':'-350px'}
 
 
+@app.callback( 
+    dash.dependencies.Output('check', 'value'),
+    [dash.dependencies.Input('menu_lateral', 'n_clicks')],
+    [dash.dependencies.State('check', 'value')]  )             
+
+def clica_ou_nao_check(click,a):
+    #print(check,flush=True)
+    #if radio=='evd':
+    #if 'ativado' in check:
+    if click:
+        if 'ativado' in a:
+            return ['']
+        else:
+            return ['ativado'] 
+
+    return ['']  
+
 if(__name__ == '__main__'):
-    app.run_server(debug=True) 
+    app.run_server(debug=True,port=8093) 
 
 
