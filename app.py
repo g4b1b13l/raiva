@@ -232,6 +232,11 @@ ingressante=[
 'Por quantidade',
 'Vagas Reservadas']
 
+dict_mudar_list = {     #é para saber o que tem dentro de cada lista quando olhado as fatos.
+    'evd' : evadidos,
+    'ing' : ingressante
+}
+
 formato=['Pizza', 'Barra', 'Barra - Stacked']
 
 #termina aqui os parametros dos botoes
@@ -969,7 +974,7 @@ def tipo_graph(variavel,pergunta,no_ies,tipo,buttons,mudar):
     variavel=tuple(variavel)
     fig=go.Figure()
 
-    if variavel == ():
+    if variavel == () or pergunta not in dict_mudar_list[mudar]:
         return fig
 
     mycursor=mydb.cursor()
