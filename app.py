@@ -413,6 +413,7 @@ app.layout = html.Div([
 
                             multi=False,
                             searchable=False,
+                            placeholder='Selecione o tipo do gráfico'
                         )],
                     ),
 
@@ -427,7 +428,9 @@ app.layout = html.Div([
 
                             multi=True,
                             searchable=False,
-                            value= ''
+                            value= '',
+                            placeholder='Selecione a Ies desejada',
+                            
                         )],
                         
                         id='tudo_ies'
@@ -445,6 +448,7 @@ app.layout = html.Div([
 
                             multi=False,
                             searchable=False,
+                            placeholder='Selecione a pergunta', 
                             )],
                             style = {'display': 'block'},
                             id='evasao'
