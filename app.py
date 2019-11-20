@@ -327,6 +327,7 @@ app.layout = html.Div([
                 id='config_graph',
                 value='g1',
                 multi=False,
+                searchable=False,
                 #className='two columns',
                 #style={'display': 'block',
                 #'z-index': '1',
@@ -411,6 +412,7 @@ app.layout = html.Div([
                             value='',
 
                             multi=False,
+                            searchable=False,
                         )],
                     ),
 
@@ -424,6 +426,7 @@ app.layout = html.Div([
                             ],
 
                             multi=True,
+                            searchable=False,
                             value= ''
                         )],
                         
@@ -441,6 +444,7 @@ app.layout = html.Div([
                             ],
 
                             multi=False,
+                            searchable=False,
                             )],
                             style = {'display': 'block'},
                             id='evasao'
